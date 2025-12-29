@@ -1,0 +1,16 @@
+Universal File Opener - Sample Text File
+
+This is a sample text file to test the Universal File Opener application.
+
+Features Tested:
+✅ Text file reading
+✅ File metadata display
+✅ File sharing functionality
+✅ Recent files tracking
+
+The app supports various file formats including:
+- Microsoft Office files (Excel, Word, PowerPoint)
+- PDF documents
+- Text files (TXT, CSV, JSON)
+
+Thank you for testing the Universal File Opener!

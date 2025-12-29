@@ -1,0 +1,11 @@
+File Type,Extension,Supported,Preview Available
+Excel,.xlsx,Yes,Share to app
+Excel,.xls,Yes,Share to app
+Word,.docx,Yes,Share to app
+Word,.doc,Yes,Share to app
+PowerPoint,.pptx,Yes,Share to app
+PowerPoint,.ppt,Yes,Share to app
+PDF,.pdf,Yes,Yes
+Text,.txt,Yes,Yes
+CSV,.csv,Yes,Yes
+JSON,.json,Yes,Yes

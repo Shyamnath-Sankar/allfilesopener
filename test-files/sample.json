@@ -1,0 +1,46 @@
+{
+  "app": "Universal File Opener",
+  "version": "1.0.0",
+  "supportedFormats": [
+    {
+      "category": "Microsoft Office",
+      "types": [
+        { "name": "Excel", "extensions": [".xlsx", ".xls", ".xlsm", ".xlsb"] },
+        { "name": "Word", "extensions": [".docx", ".doc", ".docm"] },
+        { "name": "PowerPoint", "extensions": [".pptx", ".ppt", ".pptm"] }
+      ]
+    },
+    {
+      "category": "Documents",
+      "types": [
+        { "name": "PDF", "extensions": [".pdf"] }
+      ]
+    },
+    {
+      "category": "Text Files",
+      "types": [
+        { "name": "Plain Text", "extensions": [".txt", ".text"] },
+        { "name": "CSV", "extensions": [".csv"] },
+        { "name": "JSON", "extensions": [".json"] }
+      ]
+    }
+  ],
+  "features": {
+    "filePicker": true,
+    "recentFiles": true,
+    "fileSharing": true,
+    "fileMetadata": true,
+    "crossPlatform": true
+  },
+  "platforms": ["iOS", "Android"],
+  "technicalStack": [
+    "React Native",
+    "Expo SDK 54",
+    "React Navigation",
+    "AsyncStorage",
+    "Expo Document Picker",
+    "Expo File System",
+    "Expo Sharing",
+    "React Native WebView"
+  ]
+}
