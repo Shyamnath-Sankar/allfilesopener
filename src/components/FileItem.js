@@ -1,62 +1,88 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  Alert
+  View,
 } from 'react-native';
-import { formatFileSize, formatDate } from '../constants/fileTypes';
+import { formatDate, formatFileSize } from '../constants/fileTypes';
+import { openFile } from '../utils/fileViewer';
 
 const FileItem = ({ file, onPress, onDelete }) => {
+  const [opening, setOpening] = useState(false);
+  const color = file?.color || '#999999';
+
+  const handleOpen = useCallback(async () => {
+    try {
+      setOpening(true);
+      await openFile(file);
+    } catch (error) {
+      console.error('Error opening file:', error);
+      Alert.alert(
+        'Open Error',
+        error?.message || 'Failed to open file. Please make sure you have a compatible app installed.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setOpening(false);
+    }
+  }, [file]);
+
   const handleLongPress = () => {
-    Alert.alert(
-      'File Options',
-      `What would you like to do with ${file.name}?`,
-      [
-        {
-          text: 'Open',
-          onPress: () => onPress(file)
-        },
-        {
-          text: 'Remove from Recent',
-          style: 'destructive',
-          onPress: () => onDelete(file.uri)
-        },
-        {
-          text: 'Cancel',
-          style: 'cancel'
-        }
-      ]
-    );
+    Alert.alert('File Options', `What would you like to do with ${file.name}?`, [
+      {
+        text: 'Open',
+        onPress: handleOpen,
+      },
+      onPress
+        ? {
+            text: 'View Details',
+            onPress: () => onPress(file),
+          }
+        : null,
+      {
+        text: 'Remove from Recent',
+        style: 'destructive',
+        onPress: () => onDelete(file.uri),
+      },
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+    ].filter(Boolean));
   };
 
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => onPress(file)}
+      onPress={handleOpen}
       onLongPress={handleLongPress}
+      disabled={opening}
       activeOpacity={0.7}
     >
-      <View style={[styles.iconContainer, { backgroundColor: file.color + '20' }]}>
-        <Text style={styles.icon}>{file.icon}</Text>
+      <View style={[styles.iconContainer, { backgroundColor: `${color}20` }]}>
+        {opening ? (
+          <ActivityIndicator size="small" color={color} />
+        ) : (
+          <Text style={styles.icon}>{file.icon}</Text>
+        )}
       </View>
-      
+
       <View style={styles.infoContainer}>
         <Text style={styles.fileName} numberOfLines={1}>
           {file.name}
         </Text>
-        
+
         <View style={styles.metadataContainer}>
           <Text style={styles.fileType}>{file.typeName}</Text>
           <Text style={styles.separator}>•</Text>
           <Text style={styles.fileSize}>{formatFileSize(file.size)}</Text>
         </View>
-        
+
         {file.openedAt && (
-          <Text style={styles.dateText}>
-            Opened {formatDate(file.openedAt)}
-          </Text>
+          <Text style={styles.dateText}>Opened {formatDate(file.openedAt)}</Text>
         )}
       </View>
     </TouchableOpacity>
