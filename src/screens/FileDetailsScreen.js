@@ -7,19 +7,24 @@ import {
   Alert,
   ScrollView,
   StatusBar,
-  Platform
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FileViewer from '../components/FileViewer';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { saveRecentFile } from '../utils/storage';
 import { shareFile } from '../utils/fileUtils';
+import { openFile } from '../utils/fileViewer';
 import { formatFileSize } from '../constants/fileTypes';
 
 const FileDetailsScreen = ({ route, navigation }) => {
   const { file } = route.params;
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('viewer');
+
+  const canPreviewInApp =
+    typeof file?.canPreviewInApp === 'boolean'
+      ? file.canPreviewInApp
+      : ['TEXT', 'CSV', 'JSON', 'HTML', 'CSS'].includes(file?.type);
 
   useEffect(() => {
     saveFileToRecent();
@@ -49,15 +54,21 @@ const FileDetailsScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleOpenInNativeApp = () => {
-    Alert.alert(
-      'Open in Native App',
-      'To open this file in its native application, please use the Share button and select the appropriate app.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Share', onPress: handleShare }
-      ]
-    );
+  const handleOpenInApp = async () => {
+    try {
+      setLoading(true);
+      await openFile(file);
+    } catch (error) {
+      console.error('Error opening file:', error);
+      Alert.alert(
+        'Open Error',
+        error?.message ||
+          'Failed to open file. Please make sure you have a compatible app installed.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderFileInfo = () => {
@@ -101,13 +112,10 @@ const FileDetailsScreen = ({ route, navigation }) => {
             <Text style={styles.actionButtonText}>Share File</Text>
           </TouchableOpacity>
 
-          {(file.type === 'EXCEL' || file.type === 'WORD' || file.type === 'POWERPOINT') && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={handleOpenInNativeApp}
-            >
+          {!canPreviewInApp && (
+            <TouchableOpacity style={styles.actionButton} onPress={handleOpenInApp}>
               <Text style={styles.actionButtonIcon}>📱</Text>
-              <Text style={styles.actionButtonText}>Open in App</Text>
+              <Text style={styles.actionButtonText}>Open File</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -115,11 +123,9 @@ const FileDetailsScreen = ({ route, navigation }) => {
         <View style={styles.noteSection}>
           <Text style={styles.noteTitle}>ℹ️ Note</Text>
           <Text style={styles.noteText}>
-            {file.type === 'EXCEL' || file.type === 'WORD' || file.type === 'POWERPOINT'
-              ? 'Office files (Excel, Word, PowerPoint) require native apps for full functionality. Use the Share button to open them in Microsoft Office, Google Docs, or other compatible apps.'
-              : file.type === 'PDF'
-              ? 'PDF files are rendered using the built-in viewer.'
-              : 'Text files are displayed directly in the app and can be scrolled and selected.'}
+            {canPreviewInApp
+              ? 'This file is displayed directly in the app and can be scrolled and selected.'
+              : 'This file will be opened using a compatible app installed on your device (or the system share sheet).'}
           </Text>
         </View>
       </ScrollView>
